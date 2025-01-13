@@ -12,6 +12,21 @@ SECRET_KEY = 'django-insecure-1+efd84g(04)_l6810xuxb4leml^=bowsux0!yxpi!0w@k*mda
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+
+import os
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'mascotas_db'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', '12345'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+    }
+}
+
 """
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -68,17 +83,6 @@ WSGI_APPLICATION = 'djangoProject.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mascotas_db',  # Cambia esto
-        'USER': 'postgres',         # Cambia esto
-        'PASSWORD': '12345',  # Cambia esto
-        'HOST': 'localhost',
-        'PORT': '5432',  # Puerto predeterminado de PostgreSQL
-    }
-}
 
 
 # Password validation
