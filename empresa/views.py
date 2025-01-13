@@ -21,6 +21,8 @@ import base64
 from django.conf import settings
 from django.urls import reverse
 import os
+import uuid
+
 
 
 
@@ -51,7 +53,7 @@ def listar_propietarios(request):
     propietarios = Propietario.objects.all()
     return render(request, 'listar_propietarios.html', {'propietarios': propietarios})
 
-@login_required
+#@login_required
 def registrar_mascota(request):
     if request.method == 'POST':
         propietario_form = PropietarioForm(request.POST)
@@ -138,8 +140,15 @@ def borrar_mascota(request, id):
 
 def listar_mascotas(request):
     # Obtiene todas las mascotas de la base de datos
-    mascotas = Mascota.objects.all()
-    return render(request, 'listar_mascotas.html', {'mascotas': mascotas})
+    mascotas = Mascota.objects.select_related('propietario').all()
+
+    context = {
+        'mascotas': mascotas,  # Incluye a las mascotas con su propietario relacionado
+    }
+    return render(request, 'listar_mascotas.html', context)
+
+
+
 def inicio(request):
     return render(request, 'inicio.html')
 

@@ -137,3 +137,5 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'juanperezrosas007@gmail.com'  # Reemplaza con tu correo
 EMAIL_HOST_PASSWORD = 'gdwomednsumszwxu '  # Contraseña generada
+
+#SITE_DOMAIN = "https://djangoproject-x1zp.onrender.com"
