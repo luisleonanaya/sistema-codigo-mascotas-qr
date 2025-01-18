@@ -24,8 +24,6 @@ import os
 import uuid
 
 
-
-
 @csrf_exempt
 def guardar_ubicacion(request, mascota_id):
     if request.method == "POST":
