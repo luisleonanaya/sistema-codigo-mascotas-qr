@@ -5,15 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalles de {{ mascota.nombre }}</title>
     <!-- Bootstrap -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Estilo adicional para mejorar la apariencia */
+        body {
+            background-color: #f8f9fa;
+        }
+        .card-header {
+            background: linear-gradient(90deg, rgba(33,150,243,1) 0%, rgba(30,130,230,1) 100%);
+        }
+        .btn-update-location {
+            margin-top: 10px;
+        }
+        .spinner {
+            display: none;
+        }
+    </style>
+
+    <script>
+        // Función para obtener la ubicación del dispositivo
+        function obtenerUbicacion() {
+            const spinner = document.getElementById("loading-spinner");
+            const ubicacionError = document.getElementById("ubicacion-error");
+            const btnActualizar = document.getElementById("btn-actualizar");
+
+            // Mostrar spinner mientras se solicita la ubicación
+            spinner.style.display = "inline-block";
+            ubicacionError.innerText = "";
+
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        const latitud = position.coords.latitude;
+                        const longitud = position.coords.longitude;
+
+                        // Redirigir con la ubicación incluida
+                        const currentUrl = window.location.href.split('?')[0];
+                        const newUrl = `${currentUrl}?lat=${latitud}&lon=${longitud}`;
+                        window.location.href = newUrl;
+                    },
+                    function (error) {
+                        // Manejo de errores de ubicación
+                        spinner.style.display = "none";
+                        let mensajeError;
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                mensajeError = "Permiso denegado para obtener la ubicación.";
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                mensajeError = "No se pudo determinar la ubicación.";
+                                break;
+                            case error.TIMEOUT:
+                                mensajeError = "El tiempo de espera para obtener la ubicación expiró.";
+                                break;
+                            default:
+                                mensajeError = "Ocurrió un error desconocido.";
+                                break;
+                        }
+                        ubicacionError.innerText = mensajeError;
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0,
+                    }
+                );
+            } else {
+                spinner.style.display = "none";
+                ubicacionError.innerText = "La geolocalización no es soportada por este navegador.";
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container mt-4">
         <div class="card shadow">
-            <div class="card-header text-center bg-primary text-white">
+            <div class="card-header text-center text-white">
                 <h1>Detalles de {{ mascota.nombre }}</h1>
             </div>
             <div class="card-body">
@@ -50,18 +118,24 @@
                 <h2 class="mb-3">Foto de la Mascota</h2>
                 <div class="text-center mb-4">
                     {% if mascota.foto %}
-                        <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}" class="img-fluid" style="max-width: 300px;">
+                        <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}" class="img-fluid rounded shadow" style="max-width: 300px;">
                     {% else %}
                         <p class="text-muted">No hay foto disponible.</p>
                     {% endif %}
                 </div>
 
                 <!-- Ubicación -->
-                <h2 class="mb-3">Ubicación</h2>
-                {% if mascota.ubicacion_latitud and mascota.ubicacion_longitud %}
-                <p>Latitud: {{ mascota.ubicacion_latitud }}, Longitud: {{ mascota.ubicacion_longitud }}</p>
+                <h2 class="mb-3">Ubicación del Usuario</h2>
+                {% if latitud and longitud %}
+                <p><strong>Latitud:</strong> {{ latitud }}</p>
+                <p><strong>Longitud:</strong> {{ longitud }}</p>
                 {% else %}
-                <p class="text-muted">Ubicación no disponible.</p>
+                <p class="text-muted">No se proporcionó la ubicación del dispositivo.</p>
+                <button id="btn-actualizar" class="btn btn-primary btn-update-location" onclick="obtenerUbicacion()">
+                    Actualizar Ubicación
+                    <span id="loading-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                </button>
+                <p id="ubicacion-error" class="text-danger mt-2"></p>
                 {% endif %}
             </div>
             <div class="card-footer text-center">
@@ -70,16 +144,8 @@
         </div>
     </div>
 
-        <!-- Ubicación -->
-    <h2 class="mb-3">Ubicación</h2>
-        {% if latitud and longitud %}
-            <p><strong>Latitud:</strong> {{ latitud }}</p>
-            <p><strong>Longitud:</strong> {{ longitud }}</p>
-            {% else %}
-            <p class="text-muted">No se proporcionó la ubicación del dispositivo.</p>
-         {% endif %}
-
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+

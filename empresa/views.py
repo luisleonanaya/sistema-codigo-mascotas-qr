@@ -223,12 +223,16 @@ def detalles_mascota(request, mascota_id):
     mascota = get_object_or_404(Mascota, id=mascota_id)
 
     # Obtener la ubicación del dispositivo, si está disponible
-    latitud = request.GET.get('lat', None)
-    longitud = request.GET.get('lon', None)
+    latitud = request.GET.get('lat')
+    longitud = request.GET.get('lon')
 
-    # Generar URL para acceder a la mascota, con un endpoint que puede aceptar ubicación
+    # Si hay coordenadas, puedes registrarlas en la base de datos, logs o utilizarlas en el contexto
+    if latitud and longitud:
+        print(f"Latitud: {latitud}, Longitud: {longitud}")
+
+    # Generar URL para el Código QR (sin cambios)
     base_url = request.build_absolute_uri(reverse('detalles_mascota', args=[mascota_id]))
-    url_con_parametros = f"{base_url}?lat={{lat}}&lon={{lon}}"  # Aquí se pasan latitud y longitud como parámetros dinámicos
+    url_con_parametros = f"{base_url}?lat={{lat}}&lon={{lon}}"
 
     # Generar el Código QR
     qr = qrcode.QRCode(
@@ -240,10 +244,9 @@ def detalles_mascota(request, mascota_id):
     qr.add_data(url_con_parametros)
     qr.make(fit=True)
 
-    # Crear imagen del QR y guardarla
-    img = qr.make_image(fill_color="black", back_color="white")
     qr_path = os.path.join(settings.MEDIA_ROOT, 'qr_codes', f'{mascota.nombre}_{mascota.codigo_qr}.png')
     os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+    img = qr.make_image(fill_color="black", back_color="white")
     img.save(qr_path)
 
     context = {
@@ -254,5 +257,6 @@ def detalles_mascota(request, mascota_id):
     }
 
     return render(request, 'detalles_mascota.html', context)
+
 
 
