@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Evento QR{% endblock %}
+
+{% block content %}
+<main class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h4 mb-0">Registrar evento QR</h1>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Registrar evento</button>
+                <a href="{% url 'inicio' %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}
