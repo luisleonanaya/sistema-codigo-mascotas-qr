@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Mascota{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-container {
+        max-width: 850px;
+        margin: 30px auto;
+        padding: 24px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    textarea {
+        resize: none;
+        min-height: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container form-container">
+    <h1 class="text-center mb-4">Registrar mascota</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <h3 class="h5 mb-3">Datos del propietario</h3>
+        <div class="mb-3">
+            {{ propietario_form.nombre.label_tag }}
+            {{ propietario_form.nombre }}
+        </div>
+        <div class="mb-3">
+            {{ propietario_form.email.label_tag }}
+            {{ propietario_form.email }}
+        </div>
+        <div class="mb-3">
+            {{ propietario_form.telefono.label_tag }}
+            {{ propietario_form.telefono }}
+        </div>
+        <div class="mb-3">
+            {{ propietario_form.direccion.label_tag }}
+            {{ propietario_form.direccion }}
+        </div>
+
+        <hr>
+
+        <h3 class="h5 mb-3">Datos de la mascota</h3>
+        <div class="mb-3">
+            {{ mascota_form.nombre.label_tag }}
+            {{ mascota_form.nombre }}
+        </div>
+        <div class="mb-3">
+            {{ mascota_form.tipo.label_tag }}
+            {{ mascota_form.tipo }}
+        </div>
+        <div class="mb-3">
+            {{ mascota_form.raza.label_tag }}
+            {{ mascota_form.raza }}
+        </div>
+        <div class="mb-3">
+            {{ mascota_form.fecha_nacimiento.label_tag }}
+            {{ mascota_form.fecha_nacimiento }}
+        </div>
+        <div class="mb-3">
+            {{ mascota_form.genero.label_tag }}
+            {{ mascota_form.genero }}
+        </div>
+        <div class="mb-3">
+            {{ mascota_form.estado_salud.label_tag }}
+            {{ mascota_form.estado_salud }}
+        </div>
+        <div class="mb-3">
+            {{ mascota_form.descripcion.label_tag }}
+            {{ mascota_form.descripcion }}
+        </div>
+        <div class="mb-3">
+            {{ mascota_form.foto.label_tag }}
+            {{ mascota_form.foto }}
+        </div>
+
+        <div class="mb-3">
+            <label for="codigo-qr" class="form-label">Selecciona un código QR:</label>
+            <select id="codigo-qr" class="form-control" name="codigo_qr" required>
+                <option value="" selected disabled>Seleccionar...</option>
+                {% for mascota in mascotas %}
+                    <option value="{{ mascota.codigo_qr }}">{{ mascota.codigo_qr }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Registrar</button>
+            <a href="{% url 'listar_mascotas' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
