@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Sistema de Mascotas{% endblock %}
+
+{% block content %}
+<header class="bg-primary text-white text-center py-5 mb-4">
+    <div class="container">
+        <h1 class="display-4">Bienvenido al Sistema de Mascotas</h1>
+        <p class="lead">Registra mascotas, consulta propietarios y gestiona códigos QR de identificación.</p>
+    </div>
+</header>
+
+<section class="container">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Servicios</h5>
+                    <p class="card-text">Conoce las funciones disponibles para el registro y cuidado de mascotas.</p>
+                    <a href="{% url 'servicios' %}" class="btn btn-primary">Ver servicios</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Registrar mascotas</h5>
+                    <p class="card-text">Asocia una mascota con su propietario y un código QR de identificación.</p>
+                    <a href="{% url 'registrar_mascota' %}" class="btn btn-success">Registrar mascota</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Lista de mascotas</h5>
+                    <p class="card-text">Consulta las mascotas registradas y revisa sus detalles.</p>
+                    <a href="{% url 'listar_mascotas' %}" class="btn btn-primary">Ver mascotas</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row text-center mt-2">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Propietarios</h5>
+                    <p class="card-text">Consulta la información de los propietarios registrados.</p>
+                    <a href="{% url 'listar_propietarios' %}" class="btn btn-outline-primary">Ver propietarios</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Contacto</h5>
+                    <p class="card-text">Envía dudas, comentarios o sugerencias sobre el sistema.</p>
+                    <a href="{% url 'contacto' %}" class="btn btn-outline-primary">Ir a contacto</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
