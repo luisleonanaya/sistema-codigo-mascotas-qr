@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Contacto - Sistema de Mascotas{% endblock %}
+
+{% block content %}
+<header class="bg-primary text-white text-center py-4 mb-4">
+    <div class="container">
+        <h1 class="display-5">Contacto</h1>
+        <p class="lead">Déjanos tus dudas o comentarios sobre el sistema.</p>
+    </div>
+</header>
+
+<main class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Envíanos un mensaje</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Escribe tu nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="correo" class="form-label">Correo:</label>
+                            <input type="email" class="form-control" id="correo" name="correo" placeholder="Escribe tu correo electrónico" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mensaje" class="form-label">Mensaje:</label>
+                            <textarea class="form-control" id="mensaje" name="mensaje" rows="4" placeholder="Escribe tu mensaje" required></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
