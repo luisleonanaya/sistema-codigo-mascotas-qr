@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Administrativo{% endblock %}
+
+{% block content %}
+<main class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h4 mb-0">Panel administrativo</h1>
+        </div>
+        <div class="card-body">
+            <p>Bienvenido al área administrativa. Desde aquí puedes acceder a las opciones principales del sistema.</p>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'registrar_mascota' %}" class="btn btn-success">Registrar mascota</a>
+                <a href="{% url 'listar_mascotas' %}" class="btn btn-primary">Ver mascotas</a>
+                <a href="{% url 'listar_propietarios' %}" class="btn btn-primary">Ver propietarios</a>
+                <a href="/admin/" class="btn btn-dark">Django Admin</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
