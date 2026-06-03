@@ -149,7 +149,17 @@ def registrar_evento_qr(request, id):
         longitud=longitud,
     )
 
-    return render(request, "empresa/detalles_mascota.html", {"mascota": mascota})
+    qr_url = generar_qr_mascota(request, mascota)
+    return render(
+        request,
+        "empresa/detalles_mascota.html",
+        {
+            "mascota": mascota,
+            "qr_url": qr_url,
+            "latitud": latitud,
+            "longitud": longitud,
+        },
+    )
 
 
 @csrf_exempt
