@@ -27,4 +27,10 @@ urlpatterns = [
     path("registrar-mascota/", views.registrar_mascota, name="registrar_mascota"),
     path("listar-mascotas/", views.listar_mascotas, name="listar_mascotas"),
     path("listar-propietarios/", views.listar_propietarios, name="listar_propietarios"),
+
+    path(
+        "placas-disponibles/",
+        views.placas_disponibles_por_tipo,
+        name="placas_disponibles"
+    ),
 ]

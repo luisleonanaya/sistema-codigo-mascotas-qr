@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from .forms import EventoQRForm, MascotaForm, PropietarioForm
-from .models import EventoQR, Mascota, Propietario
+from .models import EventoQR, Mascota, PlacaQR, Propietario
 
 
 def inicio(request):
@@ -52,7 +52,6 @@ def eliminar_propietario(request, propietario_id):
     messages.success(request, "Propietario eliminado correctamente.")
     return redirect("listar_propietarios")
 
-
 def registrar_mascota(request):
     if request.method == "POST":
         propietario_form = PropietarioForm(request.POST)
@@ -60,32 +59,34 @@ def registrar_mascota(request):
 
         if propietario_form.is_valid() and mascota_form.is_valid():
             propietario = propietario_form.save()
-            codigo_qr_seleccionado = request.POST.get("codigo_qr")
+            placa_qr = mascota_form.cleaned_data["placa_qr"]
 
-            mascota = get_object_or_404(
-                Mascota,
-                codigo_qr=codigo_qr_seleccionado,
-                propietario__isnull=True,
+            mascota = Mascota.objects.create(
+                propietario=propietario,
+                placa_qr=placa_qr,
+                nombre=mascota_form.cleaned_data["nombre"],
+                tipo=mascota_form.cleaned_data["tipo"],
+                raza=mascota_form.cleaned_data["raza"],
+                fecha_nacimiento=mascota_form.cleaned_data["fecha_nacimiento"],
+                genero=mascota_form.cleaned_data["genero"],
+                color=mascota_form.cleaned_data["color"],
+                estado_salud=mascota_form.cleaned_data["estado_salud"],
+                senas_particulares=mascota_form.cleaned_data["senas_particulares"],
+                descripcion=mascota_form.cleaned_data["descripcion"],
+                foto=mascota_form.cleaned_data["foto"],
             )
 
-            mascota.propietario = propietario
-            mascota.nombre = mascota_form.cleaned_data["nombre"]
-            mascota.tipo = mascota_form.cleaned_data["tipo"]
-            mascota.raza = mascota_form.cleaned_data["raza"]
-            mascota.fecha_nacimiento = mascota_form.cleaned_data["fecha_nacimiento"]
-            mascota.genero = mascota_form.cleaned_data["genero"]
-            mascota.estado_salud = mascota_form.cleaned_data["estado_salud"]
-            mascota.descripcion = mascota_form.cleaned_data["descripcion"]
-            mascota.foto = mascota_form.cleaned_data["foto"]
-            mascota.save()
+            placa_qr.estado = "Asignada"
+            placa_qr.save()
 
-            messages.success(request, "Mascota registrada correctamente.")
+            messages.success(
+                request,
+                f"Mascota {mascota.nombre} registrada correctamente con la placa {placa_qr.codigo}."
+            )
             return redirect("listar_mascotas")
     else:
         propietario_form = PropietarioForm()
         mascota_form = MascotaForm()
-
-    codigos_qr_disponibles = Mascota.objects.filter(propietario__isnull=True)
 
     return render(
         request,
@@ -93,10 +94,8 @@ def registrar_mascota(request):
         {
             "propietario_form": propietario_form,
             "mascota_form": mascota_form,
-            "mascotas": codigos_qr_disponibles,
         },
     )
-
 
 def listar_mascotas(request):
     mascotas = Mascota.objects.select_related("propietario").all().order_by("nombre")
@@ -239,3 +238,26 @@ def generar_qr_mascota(request, mascota):
     img.save(qr_path)
 
     return f"{settings.MEDIA_URL}qr_codes/{qr_filename}"
+
+def placas_disponibles_por_tipo(request):
+    tipo = request.GET.get("tipo")
+
+    placas = []
+
+    if tipo in ["Perro", "Gato", "Otro"]:
+        placas_qr = PlacaQR.objects.filter(
+            tipo_mascota=tipo,
+            estado="Disponible",
+            activo=True
+        ).order_by("codigo")
+
+        placas = [
+            {
+                "id": str(placa.id),
+                "codigo": placa.codigo,
+                "tipo_mascota": placa.tipo_mascota,
+            }
+            for placa in placas_qr
+        ]
+
+    return JsonResponse({"placas": placas})

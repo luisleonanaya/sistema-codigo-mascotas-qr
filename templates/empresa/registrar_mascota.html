@@ -82,13 +82,13 @@
         </div>
 
         <div class="mb-3">
-            <label for="codigo-qr" class="form-label">Selecciona un código QR:</label>
-            <select id="codigo-qr" class="form-control" name="codigo_qr" required>
-                <option value="" selected disabled>Seleccionar...</option>
-                {% for mascota in mascotas %}
-                    <option value="{{ mascota.codigo_qr }}">{{ mascota.codigo_qr }}</option>
-                {% endfor %}
-            </select>
+            {{ mascota_form.placa_qr.label_tag }}
+            {{ mascota_form.placa_qr }}
+            {% if mascota_form.placa_qr.errors %}
+            <div class="text-danger">
+                {{ mascota_form.placa_qr.errors }}
+            </div>
+            {% endif %}
         </div>
 
         <div class="text-center">
@@ -97,4 +97,60 @@
         </div>
     </form>
 </div>
+
+    {% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tipoSelect = document.getElementById("id_tipo");
+        const placaSelect = document.getElementById("id_placa_qr");
+
+        function limpiarPlacas(mensaje) {
+            placaSelect.innerHTML = "";
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = mensaje;
+            placaSelect.appendChild(option);
+        }
+
+        if (tipoSelect && placaSelect) {
+            tipoSelect.addEventListener("change", function () {
+                const tipo = tipoSelect.value;
+
+                if (!tipo) {
+                    limpiarPlacas("Primero selecciona el tipo de mascota");
+                    return;
+                }
+
+                limpiarPlacas("Cargando placas disponibles...");
+
+                fetch(`/placas-disponibles/?tipo=${encodeURIComponent(tipo)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        placaSelect.innerHTML = "";
+
+                        const defaultOption = document.createElement("option");
+                        defaultOption.value = "";
+                        defaultOption.textContent = "Selecciona una placa QR";
+                        placaSelect.appendChild(defaultOption);
+
+                        if (data.placas.length === 0) {
+                            limpiarPlacas("No hay placas disponibles para este tipo");
+                            return;
+                        }
+
+                        data.placas.forEach(placa => {
+                            const option = document.createElement("option");
+                            option.value = placa.id;
+                            option.textContent = `${placa.codigo} - ${placa.tipo_mascota}`;
+                            placaSelect.appendChild(option);
+                        });
+                    })
+                    .catch(() => {
+                        limpiarPlacas("Error al cargar placas disponibles");
+                    });
+            });
+        }
+    });
+</script>
+{% endblock %}
 {% endblock %}
