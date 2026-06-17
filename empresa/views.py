@@ -13,9 +13,8 @@ from django.views.decorators.http import require_POST
 from django.db.models import Q
 from io import BytesIO
 
-from .forms import EventoQRForm, GenerarPlacasQRForm, MascotaActualizarForm, MascotaForm, PropietarioForm
-from .models import EventoQR, Mascota, PlacaQR, Propietario
-
+from .forms import EventoQRForm, GenerarPlacasQRForm, MascotaActualizarForm, MascotaForm, PropietarioForm, ReporteMascotaEncontradaForm
+from .models import EventoQR, Mascota, PlacaQR, Propietario, ReporteMascotaEncontrada
 
 def inicio(request):
     return render(request, "empresa/inicio.html")
@@ -143,11 +142,24 @@ def listar_mascotas(request):
     return render(request, "empresa/listar_mascotas.html", {"mascotas": mascotas})
 
 
-@require_POST
-def borrar_mascota(request, id):
-    mascota = get_object_or_404(Mascota, id=id)
+@login_required
+def borrar_mascota(request, mascota_id):
+    mascota = get_object_or_404(Mascota, id=mascota_id)
+
+    placa = mascota.placa_qr
+
+    if placa:
+        placa.estado = "Disponible"
+        placa.save()
+
+    nombre_mascota = mascota.nombre
     mascota.delete()
-    messages.success(request, "Mascota eliminada correctamente.")
+
+    messages.success(
+        request,
+        f"La mascota {nombre_mascota} fue eliminada y su placa QR quedó disponible nuevamente."
+    )
+
     return redirect("listar_mascotas")
 
 
@@ -519,4 +531,56 @@ def editar_propietario(request, propietario_id):
             "form": form,
             "propietario": propietario,
         },
+    )
+
+def reportar_mascota_encontrada(request, mascota_id):
+    mascota = get_object_or_404(Mascota, id=mascota_id)
+
+    if request.method == "POST":
+        form = ReporteMascotaEncontradaForm(request.POST)
+
+        if form.is_valid():
+            reporte = form.save(commit=False)
+            reporte.mascota = mascota
+            reporte.save()
+
+            messages.success(
+                request,
+                "Gracias. El reporte fue enviado correctamente."
+            )
+
+            return render(
+                request,
+                "empresa/reporte_enviado.html",
+                {
+                    "mascota": mascota,
+                    "reporte": reporte,
+                }
+            )
+    else:
+        form = ReporteMascotaEncontradaForm()
+
+    return render(
+        request,
+        "empresa/reportar_mascota_encontrada.html",
+        {
+            "form": form,
+            "mascota": mascota,
+        }
+    )
+
+
+@login_required
+def listar_reportes_mascota(request):
+    reportes = ReporteMascotaEncontrada.objects.select_related(
+        "mascota",
+        "mascota__propietario"
+    ).order_by("-fecha_reporte")
+
+    return render(
+        request,
+        "empresa/listar_reportes_mascota.html",
+        {
+            "reportes": reportes,
+        }
     )

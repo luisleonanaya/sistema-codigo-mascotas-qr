@@ -14,7 +14,7 @@ urlpatterns = [
         views.guardar_ubicacion,
         name="guardar_ubicacion",
     ),
-    path("borrar-mascota/<uuid:id>/", views.borrar_mascota, name="borrar_mascota"),
+    path("borrar-mascota/<uuid:mascota_id>/", views.borrar_mascota, name="borrar_mascota"),
     path(
         "eliminar-propietario/<int:propietario_id>/",
         views.eliminar_propietario,
@@ -46,5 +46,9 @@ urlpatterns = [
 
     path(
         "propietario/<str:propietario_id>/editar/",views.editar_propietario,name="editar_propietario"),
+
+    path("mascota/<uuid:mascota_id>/reportar/",views.reportar_mascota_encontrada,name="reportar_mascota_encontrada"),
+
+    path("reportes-mascotas/",views.listar_reportes_mascota,name="listar_reportes_mascota"),
 
 ]

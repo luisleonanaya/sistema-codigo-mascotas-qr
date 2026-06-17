@@ -120,20 +120,95 @@ class EventoQR(models.Model):
     def __str__(self):
         return f"Evento {self.id} - Mascota: {self.mascota.nombre}"
 
-
 class ReporteMascotaEncontrada(models.Model):
+    ESTADO_REPORTE_CHOICES = [
+        ("Pendiente", "Pendiente"),
+        ("En seguimiento", "En seguimiento"),
+        ("Resuelto", "Resuelto"),
+    ]
+
     id = models.AutoField(primary_key=True)
-    evento = models.ForeignKey(EventoQR, on_delete=models.CASCADE, related_name="reportes")
+
+    # Se conserva por compatibilidad con la estructura anterior.
+    # Puede quedar vacío porque ahora el reporte se hará directamente desde la mascota.
+    evento = models.ForeignKey(
+        "EventoQR",
+        on_delete=models.CASCADE,
+        related_name="reportes",
+        null=True,
+        blank=True
+    )
+
+    mascota = models.ForeignKey(
+        "Mascota",
+        on_delete=models.CASCADE,
+        related_name="reportes_encontrada",
+        null=True,
+        blank=True
+    )
+
     administrador = models.ForeignKey(
         "auth.User",
         on_delete=models.SET_NULL,
         null=True,
         blank=True
     )
+
+    nombre_reportante = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True
+    )
+
+    telefono_reportante = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True
+    )
+
+    medio_contacto = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    mensaje = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    referencia_ubicacion = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Referencia manual del lugar donde se encontró la mascota."
+    )
+
+    latitud = models.DecimalField(
+        max_digits=10,
+        decimal_places=7,
+        blank=True,
+        null=True
+    )
+
+    longitud = models.DecimalField(
+        max_digits=10,
+        decimal_places=7,
+        blank=True,
+        null=True
+    )
+
     fecha_reporte = models.DateTimeField(default=now)
-    medio_contacto = models.CharField(max_length=100, blank=True, null=True)
-    mensaje = models.TextField(blank=True, null=True)
-    estado_reporte = models.CharField(max_length=30, default="Pendiente")
+
+    estado_reporte = models.CharField(
+        max_length=30,
+        choices=ESTADO_REPORTE_CHOICES,
+        default="Pendiente"
+    )
+
+    def tiene_ubicacion(self):
+        return self.latitud is not None and self.longitud is not None
 
     def __str__(self):
+        if self.mascota:
+            return f"Reporte de {self.mascota.nombre} - {self.estado_reporte}"
         return f"Reporte {self.id} - {self.estado_reporte}"

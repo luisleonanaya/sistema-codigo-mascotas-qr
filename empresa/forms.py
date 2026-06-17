@@ -3,7 +3,7 @@ from django.forms.widgets import DateInput
 import re
 from django.utils import timezone
 
-from .models import EventoQR, Mascota, PlacaQR, Propietario, TIPO_MASCOTA_CHOICES
+from .models import EventoQR, Mascota, PlacaQR, Propietario, ReporteMascotaEncontrada, TIPO_MASCOTA_CHOICES
 
 
 class EventoQRForm(forms.ModelForm):
@@ -248,3 +248,58 @@ class MascotaActualizarForm(forms.ModelForm):
 
         for field in self.fields.values():
             field.widget.attrs.update({"class": "form-control"})
+
+class ReporteMascotaEncontradaForm(forms.ModelForm):
+    class Meta:
+        model = ReporteMascotaEncontrada
+        fields = [
+            "nombre_reportante",
+            "telefono_reportante",
+            "mensaje",
+            "referencia_ubicacion",
+            "latitud",
+            "longitud",
+        ]
+        labels = {
+            "nombre_reportante": "Tu nombre",
+            "telefono_reportante": "Teléfono de contacto",
+            "mensaje": "Mensaje",
+            "referencia_ubicacion": "Referencia del lugar",
+        }
+        widgets = {
+            "mensaje": forms.Textarea(attrs={"rows": 4}),
+            "referencia_ubicacion": forms.Textarea(attrs={"rows": 3}),
+            "latitud": forms.HiddenInput(),
+            "longitud": forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            if field_name not in ["latitud", "longitud"]:
+                field.widget.attrs.update({"class": "form-control"})
+
+        self.fields["nombre_reportante"].required = False
+        self.fields["telefono_reportante"].required = False
+        self.fields["mensaje"].required = True
+        self.fields["referencia_ubicacion"].required = False
+        self.fields["latitud"].required = False
+        self.fields["longitud"].required = False
+
+    def clean_telefono_reportante(self):
+        telefono = (self.cleaned_data.get("telefono_reportante") or "").strip()
+
+        if not telefono:
+            return telefono
+
+        telefono_limpio = re.sub(r"\D", "", telefono)
+
+        if len(telefono_limpio) < 10:
+            raise forms.ValidationError("El teléfono debe tener al menos 10 dígitos.")
+
+        if len(telefono_limpio) > 15:
+            raise forms.ValidationError("El teléfono no debe tener más de 15 dígitos.")
+
+        return telefono_limpio
+

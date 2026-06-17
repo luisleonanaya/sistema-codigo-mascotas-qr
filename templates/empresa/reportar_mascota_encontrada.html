@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Reportar mascota encontrada{% endblock %}
+
+{% block extra_head %}
+<script>
+    function obtenerUbicacionReporte() {
+        const estado = document.getElementById("estado-ubicacion");
+        const latInput = document.getElementById("id_latitud");
+        const lonInput = document.getElementById("id_longitud");
+
+        estado.innerText = "Solicitando ubicación...";
+        estado.className = "text-muted mt-2";
+
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const latitud = position.coords.latitude;
+                    const longitud = position.coords.longitude;
+
+                    latInput.value = latitud;
+                    lonInput.value = longitud;
+
+                    estado.innerText = `Ubicación obtenida: ${latitud}, ${longitud}`;
+                    estado.className = "text-success mt-2";
+                },
+                function (error) {
+                    let mensaje = "No se pudo obtener la ubicación. Puedes escribir una referencia manual.";
+
+                    if (error.code === error.PERMISSION_DENIED) {
+                        mensaje = "Permiso denegado. Puedes escribir una referencia manual del lugar.";
+                    } else if (error.code === error.POSITION_UNAVAILABLE) {
+                        mensaje = "La ubicación no está disponible. Puedes escribir una referencia manual.";
+                    } else if (error.code === error.TIMEOUT) {
+                        mensaje = "Se agotó el tiempo para obtener la ubicación. Intenta nuevamente.";
+                    }
+
+                    estado.innerText = mensaje;
+                    estado.className = "text-danger mt-2";
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            estado.innerText = "Tu navegador no soporta geolocalización.";
+            estado.className = "text-danger mt-2";
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<main class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            <h1 class="h4 mb-0">Reportar mascota encontrada</h1>
+        </div>
+
+        <div class="card-body">
+            <div class="alert alert-info">
+                Estás reportando a <strong>{{ mascota.nombre }}</strong>.
+                La ubicación solo se guardará si aceptas compartirla desde tu navegador.
+            </div>
+
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Hay errores en el formulario.</strong>
+                    Revisa los campos marcados.
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    {{ form.nombre_reportante.label_tag }}
+                    {{ form.nombre_reportante }}
+                    {% for error in form.nombre_reportante.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-text">Opcional.</div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form.telefono_reportante.label_tag }}
+                    {{ form.telefono_reportante }}
+                    {% for error in form.telefono_reportante.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-text">Opcional, pero ayuda si necesitan contactarte.</div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form.mensaje.label_tag }}
+                    {{ form.mensaje }}
+                    {% for error in form.mensaje.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.referencia_ubicacion.label_tag }}
+                    {{ form.referencia_ubicacion }}
+                    {% for error in form.referencia_ubicacion.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-text">
+                        Ejemplo: “Lo encontré frente al Oxxo de la avenida principal”.
+                    </div>
+                </div>
+
+                {{ form.latitud }}
+                {{ form.longitud }}
+
+                <div class="mb-3">
+                    <button type="button" class="btn btn-outline-primary" onclick="obtenerUbicacionReporte()">
+                        Compartir mi ubicación actual
+                    </button>
+
+                    <p id="estado-ubicacion" class="text-muted mt-2">
+                        Aún no se ha compartido ubicación.
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success">
+                        Enviar reporte
+                    </button>
+
+                    <a href="{% url 'detalles_mascota' mascota.id %}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}

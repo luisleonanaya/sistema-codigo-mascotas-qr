@@ -22,6 +22,13 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'listar_mascotas' %}">Mascotas</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'listar_propietarios' %}">Propietarios</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'listar_placas_qr' %}">Placas QR</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                        <a class="nav-link" href="{% url 'listar_reportes_mascota' %}">
+                        Reportes
+                        </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -47,6 +54,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>
