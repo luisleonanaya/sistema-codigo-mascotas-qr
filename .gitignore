@@ -14,3 +14,8 @@ staticfiles/
 # Archivos subidos o generados localmente
 media/mascotas/
 media/qr_codes/
+
+# Reportes de cobertura
+htmlcov/
+.coverage
+.pytest_cache/
